@@ -23,20 +23,17 @@ sealed class Error {
     }
 
     class Incomplete(remainingOpeners: List<Char>) : Error() {
-        override val score = run {
-            remainingOpeners
-                .reversed()
-                .fold(0L) { acc, next ->
-                    acc * 5 + when (next) {
-                        '(' -> 1L
-                        '[' -> 2L
-                        '{' -> 3L
-                        '<' -> 4L
-                        else -> throw Error("Unexpected remaining opener $next")
-                    }
+        override val score = remainingOpeners
+            .reversed()
+            .fold(0L) { acc, next ->
+                acc * 5 + when (next) {
+                    '(' -> 1L
+                    '[' -> 2L
+                    '{' -> 3L
+                    '<' -> 4L
+                    else -> throw Error("Unexpected remaining opener $next")
                 }
-
-        }
+            }
     }
 }
 
