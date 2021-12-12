@@ -24,7 +24,7 @@ val end = nodes.first { it.name == "end" }
 edges.forEach { (leftName, rightName) ->
     val left = nodes.first { it.name == leftName }
     val right = nodes.first { it.name == rightName }
-    // Don't bother adding edges pointing *at* start because we can't go back there anyway
+    // Don't bother adding edges pointing *at* start because we can't go back there anyway. Makes life easier too.
     if (right != start) {
         left.neighbors.add(right)
     }
@@ -34,30 +34,30 @@ edges.forEach { (leftName, rightName) ->
 }
 
 // This would have problems if the input contains any adjacent of alwaysVisitable nodes
-fun findPossiblePaths(path: List<Node>, results: MutableList<List<Node>>, extraSmallVisit: Boolean = false) {
+fun findPossiblePaths(
+    path: List<Node>,
+    extraSmallVisit: Boolean
+): List<List<Node>> {
     val curNode = path.last()
-    if (curNode == end) {
-        paths.add(path)
-        return
+    return if (curNode == end) {
+        listOf(path)
+    } else {
+        curNode.neighbors
+            .filter { neighbor -> neighbor.alwaysVisitable || neighbor !in path || extraSmallVisit }
+            .flatMap { neighbor ->
+                val spentSmallVisit = extraSmallVisit && neighbor.isSmallRoom && neighbor in path
+                findPossiblePaths(
+                    path = path + neighbor,
+                    extraSmallVisit = extraSmallVisit && !spentSmallVisit
+                )
+            }
     }
-    curNode.neighbors
-        .filter { neighbor -> neighbor.alwaysVisitable || neighbor !in path || extraSmallVisit }
-        .forEach { neighbor ->
-            val spentSmallVisit = extraSmallVisit && neighbor.isSmallRoom && neighbor in path
-            findPossiblePaths(
-                path = path + neighbor,
-                results = results,
-                extraSmallVisit = extraSmallVisit && !spentSmallVisit
-            )
-        }
 }
 
 // Part one
-val paths: MutableList<List<Node>> = mutableListOf()
-findPossiblePaths(listOf(start), paths)
+val paths = findPossiblePaths(listOf(start), extraSmallVisit = false)
 println(paths.size)
 
 // Part two
-paths.clear()
-findPossiblePaths(listOf(start), paths, true)
-println(paths.size)
+val paths2 = findPossiblePaths(listOf(start), extraSmallVisit = true)
+println(paths2.size)
