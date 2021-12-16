@@ -27,14 +27,13 @@ grid.forEachIndexed { index, node ->
 }
 
 fun costOfTraversal(start: Node, end: Node, graph: List<Node>): Int {
-    //val unvisitedSet = graph.toMutableSet()
     if (start !in graph || end !in graph) { throw Error("start and end must be in graph") }
     graph.forEach { it.runningCost = Int.MAX_VALUE }
     start.runningCost = 0
 
     // Priority should (hopefully) make it faster to determine the least-cost unvisited node
     val unvisitedSet = PriorityQueue<Node>()
-    unvisitedSet.addAll(graph)
+    unvisitedSet.add(start)
     while (unvisitedSet.isNotEmpty()) {
         val current = unvisitedSet.first()
         unvisitedSet.remove(current)
@@ -43,7 +42,6 @@ fun costOfTraversal(start: Node, end: Node, graph: List<Node>): Int {
             return current.runningCost
         }
         current.neighbors
-            .filter { it in unvisitedSet }
             .forEach { neighbor ->
                 val newRunningCost = current.runningCost + neighbor.cost
                 if (newRunningCost < neighbor.runningCost) {
